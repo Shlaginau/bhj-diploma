@@ -36,21 +36,23 @@ class TransactionsPage {
    * TransactionsPage.removeAccount соответственно
    * */
   registerEvents() {
-    const removeAccountButton = document.querySelector(".remove-account");
-    const removeTransactionButtons = Array.from(document.querySelectorAll(".transaction__remove"));
-
+    const removeAccountButton = document.querySelector('.remove-account');
     removeAccountButton.addEventListener('click', (e) => {
       e.preventDefault();
       this.removeAccount();
     });
 
-    removeTransactionButtons.forEach(button => {
-      button.addEventListener('click', (e) => {
-      e.preventDefault();
-      this.removeTransaction(button.dataset.id);
-      });
+    this.element.addEventListener('click', (e) => {
+      let removeTransactionButton = e.target.closest('.transaction__remove')
+      
+      if (!removeTransactionButton) {
+        return;
+      }
+      
+      this.removeTransaction(removeTransactionButton.dataset.id);
     });
   }
+  
 
   /**
    * Удаляет счёт. Необходимо показать диаголовое окно (с помощью confirm())
@@ -66,10 +68,10 @@ class TransactionsPage {
       return;
     }
 
-    const confirmation = confirm("Вы действительно хотите удалить счёт?");
+    const confirmation = confirm('Вы действительно хотите удалить этот счет?');
 
     if (confirmation) {
-      Account.remove(this.lastOptions, (response) => {
+      Account.remove({id: this.lastOptions.account_id}, (err, response) => {
         if (response && response.success) {
           this.clear();
           App.updateWidgets();
@@ -81,23 +83,24 @@ class TransactionsPage {
 
   /**
    * Удаляет транзакцию (доход или расход). Требует
-   * подтверждеия действия (с помощью confirm()).
+   * подтверждения действия (с помощью confirm()).
    * По удалению транзакции вызовите метод App.update(),
    * либо обновляйте текущую страницу (метод update) и виджет со счетами
    * */
-  removeTransaction( id ) {
-    const confirmation = confirm("Вы действительно хотите удалить эту транзакцию?");
+  removeTransaction(id) {
+    
+    const confirmation = confirm('Вы действительно хотите удалить эту транзакцию?');
     
     if (confirmation) {
-      Transaction.remove(id, (response) => {
+      Transaction.remove({id}, (err, response) => {
         if (response && response.success) {
           App.update();
+          App.widgets.accounts.update();
         }
       });
     }
   }
   
-
   /**
    * С помощью Account.get() получает название счёта и отображает
    * его через TransactionsPage.renderTitle.
@@ -108,12 +111,12 @@ class TransactionsPage {
     if (options) {
       this.lastOptions = options;
 
-      Account.get(options, (response) => {
+      Account.get(options.account_id, (err, response) => {
         if (response && response.success) {
           this.renderTitle(response.data.name);
         }
       });
-      Transaction.list (options, (response) => {
+      Transaction.list (options, (err, response) => {
           if (response && response.success) {
             this.renderTransactions(response.data);
           }
@@ -186,12 +189,12 @@ class TransactionsPage {
    * */
   renderTransactions(data) {
     const contentSection = this.element.querySelector('.content');
-    let allTransHTML = '';
+    let allTransactionHTML = '';
 
     for (const item of data) {
-      allTransHTML += this.getTransactionHTML(item);
+      allTransactionHTML += this.getTransactionHTML(item);
     }
   
-    contentSection.innerHTML = allTransHTML;
+    contentSection.innerHTML = allTransactionHTML;
   }
 }

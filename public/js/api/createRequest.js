@@ -20,12 +20,14 @@ const createRequest = (options = {}) => {
       if (xhr.status === 200) {
         options.callback(null, xhr.response);
       } else {
-        options.callback(xhr.statusText, null);
+        const error = new Error(`Request failed with status ${xhr.status}`);
+        options.callback(error, null);
       }
     });
 
     xhr.addEventListener('error', () => {
-      options.callback(new Error(xhr.statusText), null);
+      const error = new Error('Request failed');
+      options.callback(error, null);
     });
 
     if (options.method === 'GET') {

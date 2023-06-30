@@ -32,21 +32,18 @@ class AccountsWidget {
    * */
   registerEvents() {
     const createAccount = document.querySelector('.create-account');
-    const accounts = Array.from(document.querySelectorAll('.account'));
-
     createAccount.addEventListener('click', (e) => {
       e.preventDefault();
       App.getModal('createAccount').open();
     });
 
-    accounts.forEach(item => {
-      item.addEventListener('click', (e) => {
-        e.preventDefault();
-        this.onSelectAccount(item);
-      });
+    this.element.addEventListener('click', (e) => {
+      e.preventDefault();
+      const account = e.target.closest('.account');
+      this.onSelectAccount(account);
     });
   }
-
+  
   /**
    * Метод доступен только авторизованным пользователям
    * (User.current()).
@@ -61,7 +58,7 @@ class AccountsWidget {
     const сurrentUser = User.current();
 
     if (сurrentUser) {
-      Account.list(сurrentUser, (response) => {
+      Account.list(сurrentUser, (err, response) => {
         if (response && response.success) {
           this.clear();
           response.data.forEach(item => {
@@ -99,7 +96,7 @@ class AccountsWidget {
     });
       
       element.classList.add('active'); 
-      App.showPage( 'transactions', { account_id: element.dataset.id });
+      App.showPage( 'transactions', {account_id: element.dataset.id});
   }
   
 
