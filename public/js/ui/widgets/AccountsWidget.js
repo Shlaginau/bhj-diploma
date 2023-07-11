@@ -89,17 +89,18 @@ class AccountsWidget {
    * Вызывает App.showPage( 'transactions', { account_id: id_счёта });
    * */
   onSelectAccount( element ) {
-    const accounts = Array.from(document.querySelectorAll('.account'));
+    if (element) {
+      const accounts = Array.from(document.querySelectorAll('.account'));
 
-    accounts.forEach(item => {
+      accounts.forEach(item => {
         item.classList.remove('active');
-    });
+      });
       
       element.classList.add('active'); 
       App.showPage( 'transactions', {account_id: element.dataset.id});
+    }
   }
   
-
   /**
    * Возвращает HTML-код счёта для последующего
    * отображения в боковой колонке.
